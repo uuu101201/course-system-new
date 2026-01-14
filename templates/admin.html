@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>管理後台</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="topbar">
+        <h1>管理後台</h1>
+        <div>
+            <a href="/">🏠 回首頁</a> |
+            <a href="/admin/add">➕ 新增課程</a> |
+            <a href="/logout">登出</a>
+        </div>
+    </div>
+
+    <hr>
+
+    {% for c in courses %}
+        <h3>{{ c.course_date }} {{ c.start_time }}-{{ c.end_time }}｜{{ c.course_name }}</h3>
+        <p>剩餘名額：{{ c.remaining }} / {{ c.capacity }}</p>
+
+        <p>
+            <a href="/admin/edit/{{ c.id }}">✏️ 修改課程</a>
+        </p>
+
+        <form method="post" action="/admin/delete/{{ c.id }}"
+              onsubmit="return confirm('確定要刪除這堂課嗎？所有報名資料也會一起刪除！');">
+            <button class="danger">刪除課程</button>
+        </form>
+
+        <h4>報名名單</h4>
+        <ul>
+            {% for r in Registration.query.filter_by(course_id=c.id).all() %}
+                <li>{{ r.name }} | {{ r.email }} | {{ r.phone }}</li>
+            {% else %}
+                <li>目前尚無人報名</li>
+            {% endfor %}
+        </ul>
+
+        <hr>
+    {% endfor %}
+</div>
+
+</body>
+</html>

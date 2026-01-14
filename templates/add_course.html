@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>新增課程</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="topbar">
+        <h2>新增課程</h2>
+        <div>
+            <a href="/">🏠 回首頁</a> |
+            <a href="/admin">回後台</a>
+        </div>
+    </div>
+
+    <p class="small">
+        你可以選擇「單日新增」或「每週重複新增」（例如接下來每週三、重複 6 週）
+    </p>
+
+    <form method="post">
+        課程名稱：<br>
+        <input name="name" required><br><br>
+
+        開始時間：<br>
+        <input type="time" name="start_time" required><br><br>
+
+        結束時間：<br>
+        <input type="time" name="end_time" required><br><br>
+
+        名額上限：<br>
+        <input type="number" name="capacity" min="1" required><br><br>
+
+        <hr>
+
+        開課模式：<br>
+        <select name="mode" id="mode" onchange="toggleMode()">
+            <option value="single">單日新增</option>
+            <option value="weekly">每週重複新增</option>
+        </select>
+
+        <div id="single_block" style="margin-top:12px;">
+            單日日期：<br>
+            <input type="date" name="date"><br><br>
+        </div>
+
+        <div id="weekly_block" style="display:none; margin-top:12px;">
+            從哪天開始（會自動找到下一個指定星期）：<br>
+            <input type="date" name="start_date"><br><br>
+
+            每週星期幾：<br>
+            <select name="weekday">
+                <option value="0">週一</option>
+                <option value="1">週二</option>
+                <option value="2">週三</option>
+                <option value="3">週四</option>
+                <option value="4">週五</option>
+                <option value="5">週六</option>
+                <option value="6">週日</option>
+            </select><br><br>
+
+            重複幾週：<br>
+            <input type="number" name="weeks" min="1" value="4"><br><br>
+        </div>
+
+        <button>新增</button>
+    </form>
+</div>
+
+<script>
+function toggleMode(){
+    const mode = document.getElementById("mode").value;
+    document.getElementById("single_block").style.display = (mode === "single") ? "block" : "none";
+    document.getElementById("weekly_block").style.display = (mode === "weekly") ? "block" : "none";
+}
+toggleMode();
+</script>
+
+</body>
+</html>
