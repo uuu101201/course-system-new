@@ -14,18 +14,14 @@ app.secret_key = "change_this_secret_key_please"
 # SQLite 資料庫（會在專案資料夾生成 courses.db）
 import os
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+db_url = os.environ.get("DATABASE_URL")
 
-if DATABASE_URL:
-    # Render / 正式環境
-    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL.replace("postgres://", "postgresql://")
-else:
-    # 本機開發
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///courses.db"
+# Render 常見：postgres:// 需要改成 postgresql://
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 
-db = SQLAlchemy(app)
 
 # --------------------------------------
 # 管理者帳密（正式上線請改掉）
