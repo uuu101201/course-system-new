@@ -4,6 +4,27 @@ from datetime import datetime, timedelta
 import calendar
 import os
 app = Flask(__name__)
+
+# 1) SECRET_KEY：給 session/登入用（從環境變數拿）
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-change-me")
+
+# 2) DATABASE_URL：Render 會提供（從環境變數拿）
+db_url = os.environ.get("DATABASE_URL")
+
+# Render 的 DATABASE_URL 有時會是 postgres:// 開頭，SQLAlchemy 要 postgresql://
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# 如果沒有 DATABASE_URL（例如你本機跑），就先用 SQLite
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "sqlite:///local.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+@app.route("/")
+def home():
+    return "OK - site is running"
+    
 #SECRET_KEY 改成環境變數
 import os
 app.secret_key = os.environ.get("SECRET_KEY", "dev")
