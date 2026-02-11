@@ -90,14 +90,15 @@ class Registration(db.Model):
     student_id = db.Column(db.String(30), nullable=True)   # 學號
     unit = db.Column(db.String(80), nullable=True)         # 單位（老師用）
 
-    # 你原本有 email，先保留（避免舊模板或舊資料掛掉）
-    email = db.Column(db.String(50), nullable=True)
+    # ✅ 你不需要 email，但舊資料庫可能還有 NOT NULL email 欄位
+    # 所以：保留欄位、永遠存空字串，避免 INSERT 時 email = NULL 噴錯
+    email = db.Column(db.String(50), nullable=False, default="")
 
 # ✅ 你要的「自動建表」就加在這裡：兩個 Model 定義完之後
 with app.app_context():
     db.create_all()
 
-    # ✅ 自動補欄位：舊資料庫若沒有 role/student_id/unit，就幫你加上（避免上線噴錯）
+    # ✅ 自動補欄位：舊資料庫若沒有 role/student_id/unit/email，就幫你加上（避免上線噴錯）
     try:
         insp = inspect(db.engine)
         if "registration" in insp.get_table_names():
@@ -113,10 +114,25 @@ with app.app_context():
             add_col_if_missing("student_id", "ALTER TABLE registration ADD COLUMN student_id VARCHAR(30)")
             add_col_if_missing("unit", "ALTER TABLE registration ADD COLUMN unit VARCHAR(80)")
 
-            # 保留 email 欄位（如果你之前某次沒有建到）
+            # ✅ 確保 email 欄位存在（舊版可能有/沒有）
             if "email" not in cols:
                 db.session.execute(text("ALTER TABLE registration ADD COLUMN email VARCHAR(50)"))
                 db.session.commit()
+
+            # ✅ 把資料庫中 email 為 NULL 的舊資料全部補成空字串（避免 NOT NULL 爆）
+            try:
+                db.session.execute(text("UPDATE registration SET email='' WHERE email IS NULL"))
+                db.session.commit()
+            except Exception:
+                pass
+
+            # ✅ PostgreSQL：如果 email 以前是 NOT NULL，嘗試拿掉（失敗也不影響）
+            try:
+                db.session.execute(text("ALTER TABLE registration ALTER COLUMN email DROP NOT NULL"))
+                db.session.commit()
+            except Exception:
+                pass
+
     except Exception:
         # 如果資料庫不允許或語法差異，先不讓整個網站掛掉
         pass
@@ -216,8 +232,8 @@ def register(course_id):
         # 老師欄位
         unit = request.form.get("unit", "").strip()
 
-        # 你舊版可能還有 email（不強制）
-        email = request.form.get("email", "").strip() if "email" in request.form else None
+        # ✅ 不需要 email：固定存空字串（避免 DB 舊 NOT NULL 爆掉）
+        email = ""
 
         if role not in ["student", "teacher"]:
             return "請先選擇 身分（學生/老師）"
