@@ -8,42 +8,10 @@
   <style>
     .form-group { margin: 10px 0; }
     .form-group label { display: block; margin-bottom: 6px; }
-    input[type="text"] { width: 100%; max-width: 420px; padding: 8px; box-sizing: border-box; }
+    input[type="text"] { width: 100%; max-width: 520px; padding: 8px; box-sizing: border-box; }
     button { margin-top: 14px; padding: 8px 14px; }
     .step-title { margin-top: 16px; margin-bottom: 8px; }
     .hint-title { font-weight: bold; margin: 8px 0; }
-
-    /* ✅ 最硬：不管外面怎麼置中，第一步一定靠左 */
-    .role-wrap{
-      width: 100% !important;
-      text-align: left !important;
-      display: block !important;
-      position: relative !important;
-    }
-    .role-force-left{
-      position: relative !important;
-      left: 0 !important;
-      margin-left: 0 !important;
-      padding-left: 0 !important;
-      display: inline-block !important;   /* 讓內容不被撐滿去置中 */
-      text-align: left !important;
-    }
-    .role-row{
-      display: flex !important;
-      align-items: center !important;
-      justify-content: flex-start !important;
-      gap: 10px !important;    /* 圓圈到文字距離（小於 2公分） */
-      margin: 10px 0 !important;/* 上下間距（舒服，不擠） */
-    }
-    .role-row input[type="radio"]{
-      margin: 0 !important;
-    }
-    .role-row label{
-      margin: 0 !important;
-      padding: 0 !important;
-      width: auto !important;
-      display: inline !important;
-    }
   </style>
 </head>
 
@@ -62,17 +30,54 @@
   <form method="POST">
     <h3 class="step-title">第一步：選擇身分</h3>
 
-    <!-- ✅ 強制靠左的第一步 -->
-    <div class="role-wrap">
-      <div class="role-force-left">
-        <div class="role-row">
-          <input id="role_student" type="radio" name="role" value="student" required>
-          <label for="role_student">學生</label>
+    <!-- ✅ 這一塊：強制靠左 + 圓圈緊貼文字（不管 style.css 怎麼寫都會靠左） -->
+    <div id="role-options"
+         style="
+           width:100% !important;
+           display:block !important;
+           text-align:left !important;
+           align-self:flex-start !important;
+           margin:0 !important;
+           padding:0 !important;
+         ">
+
+      <div style="
+        display:flex !important;
+        flex-direction:column !important;
+        align-items:flex-start !important;
+        gap:12px !important;           /* 上下間距：舒服不擠 */
+      ">
+
+        <div style="
+          display:grid !important;
+          grid-template-columns: 24px auto !important;  /* 圓圈 + 文字 */
+          column-gap: 12px !important;                  /* 圓圈到文字距離（< 2公分） */
+          align-items:center !important;
+          justify-items:start !important;
+        ">
+          <input id="role_student" type="radio" name="role" value="student" required
+                 style="margin:0 !important;">
+          <label for="role_student"
+                 style="margin:0 !important; padding:0 !important; width:auto !important; display:inline !important; text-align:left !important;">
+            學生
+          </label>
         </div>
-        <div class="role-row">
-          <input id="role_teacher" type="radio" name="role" value="teacher" required>
-          <label for="role_teacher">老師</label>
+
+        <div style="
+          display:grid !important;
+          grid-template-columns: 24px auto !important;
+          column-gap: 12px !important;
+          align-items:center !important;
+          justify-items:start !important;
+        ">
+          <input id="role_teacher" type="radio" name="role" value="teacher" required
+                 style="margin:0 !important;">
+          <label for="role_teacher"
+                 style="margin:0 !important; padding:0 !important; width:auto !important; display:inline !important; text-align:left !important;">
+            老師
+          </label>
         </div>
+
       </div>
     </div>
 
@@ -158,3 +163,4 @@
 </script>
 </body>
 </html>
+
