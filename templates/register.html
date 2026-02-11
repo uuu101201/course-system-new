@@ -13,34 +13,36 @@
     .step-title { margin-top: 16px; margin-bottom: 8px; }
     .hint-title { font-weight: bold; margin: 8px 0; }
 
-    /* ✅ 這一段專門修你紅色箭頭：強制靠左 + 圓圈緊貼文字 */
-    .role-section { text-align: left !important; }
-    .role-list {
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      gap: 10px !important;          /* 上下間距（回到舒服，不擠） */
-      margin: 6px 0 0 0 !important;
-      padding: 0 !important;
+    /* ✅ 最硬：不管外面怎麼置中，第一步一定靠左 */
+    .role-wrap{
+      width: 100% !important;
+      text-align: left !important;
+      display: block !important;
+      position: relative !important;
     }
-    .role-row {
+    .role-force-left{
+      position: relative !important;
+      left: 0 !important;
+      margin-left: 0 !important;
+      padding-left: 0 !important;
+      display: inline-block !important;   /* 讓內容不被撐滿去置中 */
+      text-align: left !important;
+    }
+    .role-row{
       display: flex !important;
       align-items: center !important;
       justify-content: flex-start !important;
-      gap: 10px !important;          /* 圓圈到文字距離（< 2公分） */
-      width: auto !important;
+      gap: 10px !important;    /* 圓圈到文字距離（小於 2公分） */
+      margin: 10px 0 !important;/* 上下間距（舒服，不擠） */
     }
-    .role-row input[type="radio"] {
+    .role-row input[type="radio"]{
       margin: 0 !important;
-      transform: none !important;
     }
-    .role-row label.role-label {
-      display: inline !important;
-      width: auto !important;
+    .role-row label{
       margin: 0 !important;
       padding: 0 !important;
-      text-align: left !important;
-      float: none !important;
+      width: auto !important;
+      display: inline !important;
     }
   </style>
 </head>
@@ -49,37 +51,31 @@
 <div class="container">
   <div class="topbar">
     <h1>課程報名</h1>
-    <div>
-      <a href="/">🏠 回首頁</a>
-    </div>
+    <div><a href="/">🏠 回首頁</a></div>
   </div>
 
   <hr>
 
-  <p>
-    課程：{{ course.course_date }} {{ course.start_time }}-{{ course.end_time }}｜{{ course.course_name }}
-  </p>
+  <p>課程：{{ course.course_date }} {{ course.start_time }}-{{ course.end_time }}｜{{ course.course_name }}</p>
   <p>剩餘名額：{{ course.remaining }} / {{ course.capacity }}</p>
 
   <form method="POST">
-    <!-- 第一步：選身分（照你畫的：圓圈在左、文字緊貼） -->
     <h3 class="step-title">第一步：選擇身分</h3>
 
-    <div class="role-section">
-      <div class="role-list">
+    <!-- ✅ 強制靠左的第一步 -->
+    <div class="role-wrap">
+      <div class="role-force-left">
         <div class="role-row">
           <input id="role_student" type="radio" name="role" value="student" required>
-          <label class="role-label" for="role_student">學生</label>
+          <label for="role_student">學生</label>
         </div>
-
         <div class="role-row">
           <input id="role_teacher" type="radio" name="role" value="teacher" required>
-          <label class="role-label" for="role_teacher">老師</label>
+          <label for="role_teacher">老師</label>
         </div>
       </div>
     </div>
 
-    <!-- 第二步：填資料 -->
     <div id="step2" style="display:none;">
       <h3 class="step-title">第二步：填寫報名資料</h3>
 
@@ -141,9 +137,7 @@
       studentIdInput.required = true;
       unitInput.required = false;
       unitInput.value = "";
-    }
-
-    if (role === "teacher") {
+    } else {
       studentTitle.style.display = "none";
       teacherTitle.style.display = "block";
 
