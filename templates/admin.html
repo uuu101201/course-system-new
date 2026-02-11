@@ -32,6 +32,11 @@
             <button class="danger">刪除課程</button>
         </form>
 
+        <form method="POST" action="/admin/registration/delete/{{ reg.id }}" style="display:inline;">
+            <button type="submit" onclick="return confirm('確定要刪除這筆報名嗎？');">刪除報名</button>
+        </form>
+
+
         <h4>報名名單</h4>
         <ul>
             {% for r in Registration.query.filter_by(course_id=c.id).all() %}

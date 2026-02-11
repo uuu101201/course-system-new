@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 import calendar
 import os
 
+# 新增：用來檢查/補資料庫欄位（避免上線後舊表沒新欄位）
+from sqlalchemy import inspect, text
+
 app = Flask(__name__)
 
 # 1) SECRET_KEY：給 session/登入用（從環境變數拿）
@@ -74,16 +77,49 @@ class Registration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # 對應的課程 id
-    course_id = db.Column(db.Integer, nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey("course.id"), nullable=False)
 
-    # 報名資料
+    # 報名資料（共用）
     name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
+
+    # ✅ 新增：身份（student/teacher）
+    role = db.Column(db.String(10), nullable=False, default="student")
+
+    # ✅ 新增：學生/老師欄位（都先 nullable=True，讓舊資料也能存在）
+    student_id = db.Column(db.String(30), nullable=True)   # 學號
+    unit = db.Column(db.String(80), nullable=True)         # 單位（老師用）
+
+    # 你原本有 email，先保留（避免舊模板或舊資料掛掉）
+    email = db.Column(db.String(50), nullable=True)
 
 # ✅ 你要的「自動建表」就加在這裡：兩個 Model 定義完之後
 with app.app_context():
     db.create_all()
+
+    # ✅ 自動補欄位：舊資料庫若沒有 role/student_id/unit，就幫你加上（避免上線噴錯）
+    try:
+        insp = inspect(db.engine)
+        if "registration" in insp.get_table_names():
+            cols = [c["name"] for c in insp.get_columns("registration")]
+
+            def add_col_if_missing(col_name, ddl_sql):
+                if col_name not in cols:
+                    db.session.execute(text(ddl_sql))
+                    db.session.commit()
+
+            # PostgreSQL / SQLite 都能吃的 ALTER（SQLite 新版也支援 ADD COLUMN）
+            add_col_if_missing("role", "ALTER TABLE registration ADD COLUMN role VARCHAR(10)")
+            add_col_if_missing("student_id", "ALTER TABLE registration ADD COLUMN student_id VARCHAR(30)")
+            add_col_if_missing("unit", "ALTER TABLE registration ADD COLUMN unit VARCHAR(80)")
+
+            # 保留 email 欄位（如果你之前某次沒有建到）
+            if "email" not in cols:
+                db.session.execute(text("ALTER TABLE registration ADD COLUMN email VARCHAR(50)"))
+                db.session.commit()
+    except Exception:
+        # 如果資料庫不允許或語法差異，先不讓整個網站掛掉
+        pass
 
 # --------------------------------------
 # 首頁（月曆 + 月份切換 + 上午/下午顏色 + 同日排序）
@@ -169,12 +205,59 @@ def register(course_id):
         if course.remaining <= 0:
             return "此課程已額滿"
 
+        # ✅ 新增：先選學生/老師
+        role = request.form.get("role", "").strip()  # student / teacher
+        name = request.form.get("name", "").strip()
+        phone = request.form.get("phone", "").strip()
+
+        # 學生欄位
+        student_id = request.form.get("student_id", "").strip()
+
+        # 老師欄位
+        unit = request.form.get("unit", "").strip()
+
+        # 你舊版可能還有 email（不強制）
+        email = request.form.get("email", "").strip() if "email" in request.form else None
+
+        if role not in ["student", "teacher"]:
+            return "請先選擇 身分（學生/老師）"
+        if not name or not phone:
+            return "姓名、電話為必填"
+
+        # ✅ 依身分驗證
+        if role == "student":
+            if not student_id:
+                return "學生報名需填：姓名、學號、電話"
+        else:
+            if not unit:
+                return "老師報名需填：姓名、單位、電話"
+
+        # ✅ 需求 2：同一個「姓名 + 電話」不可在同一時間的課堂內重複報名
+        # 這裡以「同日期 + 同開始/結束時間」為同一時段（就算是不同課程 id 也禁止）
+        existing = (
+            db.session.query(Registration)
+            .join(Course, Registration.course_id == Course.id)
+            .filter(
+                Registration.name == name,
+                Registration.phone == phone,
+                Course.course_date == course.course_date,
+                Course.start_time == course.start_time,
+                Course.end_time == course.end_time,
+            )
+            .first()
+        )
+        if existing:
+            return "同一姓名與電話，不能在同一時段重複報名"
+
         # 建立報名資料
         reg = Registration(
             course_id=course.id,
-            name=request.form["name"],
-            email=request.form["email"],
-            phone=request.form["phone"]
+            role=role,
+            name=name,
+            phone=phone,
+            student_id=student_id if role == "student" else None,
+            unit=unit if role == "teacher" else None,
+            email=email
         )
 
         # 名額扣 1
@@ -218,6 +301,26 @@ def admin():
 
     courses = Course.query.order_by(Course.course_date, Course.start_time).all()
     return render_template("admin.html", courses=courses, Registration=Registration)
+
+# ✅ 需求 3：管理者可刪除報名資料（並把名額加回去）
+@app.route("/admin/registration/delete/<int:reg_id>", methods=["POST"])
+def admin_delete_registration(reg_id):
+    if not session.get("admin"):
+        return redirect("/login")
+
+    reg = Registration.query.get(reg_id)
+    if not reg:
+        return "報名資料不存在"
+
+    course = Course.query.get(reg.course_id)
+    if course:
+        # 把名額加回去（不要超過 capacity）
+        if course.remaining < course.capacity:
+            course.remaining += 1
+
+    db.session.delete(reg)
+    db.session.commit()
+    return redirect("/admin")
 
 # --------------------------------------
 # 新增課程（支援：單日 / 每週重複）

@@ -13,18 +13,59 @@
     <p>時間：{{ course.start_time }} - {{ course.end_time }}</p>
     <p>剩餘名額：{{ course.remaining }}</p>
 
-    <form method="post">
-        姓名：<br>
-        <input name="name" required><br><br>
+<form method="POST">
+  <label>身分：</label>
+  <label><input type="radio" name="role" value="student" required> 學生</label>
+  <label><input type="radio" name="role" value="teacher" required> 老師</label>
 
-        Email：<br>
-        <input name="email" type="email" required><br><br>
+  <hr>
 
-        電話：<br>
-        <input name="phone" required><br><br>
+  <label>姓名：</label>
+  <input type="text" name="name" required>
 
-        <button>送出報名</button>
-    </form>
+  <label>電話：</label>
+  <input type="text" name="phone" required>
+
+  <div id="student-fields" style="display:none; margin-top:10px;">
+    <label>學號：</label>
+    <input type="text" name="student_id" id="student_id">
+  </div>
+
+  <div id="teacher-fields" style="display:none; margin-top:10px;">
+    <label>單位：</label>
+    <input type="text" name="unit" id="unit">
+  </div>
+
+  <button type="submit">送出報名</button>
+</form>
+
+<script>
+  const studentFields = document.getElementById("student-fields");
+  const teacherFields = document.getElementById("teacher-fields");
+  const studentId = document.getElementById("student_id");
+  const unit = document.getElementById("unit");
+
+  function updateFields() {
+    const role = document.querySelector('input[name="role"]:checked')?.value;
+    if (role === "student") {
+      studentFields.style.display = "block";
+      teacherFields.style.display = "none";
+      studentId.required = true;
+      unit.required = false;
+      unit.value = "";
+    } else if (role === "teacher") {
+      studentFields.style.display = "none";
+      teacherFields.style.display = "block";
+      studentId.required = false;
+      unit.required = true;
+      studentId.value = "";
+    }
+  }
+
+  document.querySelectorAll('input[name="role"]').forEach(r => {
+    r.addEventListener("change", updateFields);
+  });
+</script>
 
     <br>
     <a href="/">回月曆</a>
