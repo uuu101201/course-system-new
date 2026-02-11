@@ -1,75 +1,140 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>課程報名</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="utf-8">
+  <title>課程報名</title>
+  <link rel="stylesheet" href="/static/style.css">
+
+  <style>
+    /* 保證直列排版，不依賴你原本 CSS */
+    .form-group { margin: 10px 0; }
+    .form-group label { display: block; margin-bottom: 6px; }
+    .role-item { display: block; margin: 6px 0; }
+    input[type="text"] { width: 100%; max-width: 420px; padding: 8px; box-sizing: border-box; }
+    button { margin-top: 14px; padding: 8px 14px; }
+    .step-title { margin-top: 16px; margin-bottom: 8px; }
+    .hint-title { font-weight: bold; margin: 8px 0; }
+  </style>
 </head>
+
 <body>
-
 <div class="container">
-    <h2>報名課程：{{ course.course_name }}</h2>
-    <p>日期：{{ course.course_date }}</p>
-    <p>時間：{{ course.start_time }} - {{ course.end_time }}</p>
-    <p>剩餘名額：{{ course.remaining }}</p>
-
-<form method="POST">
-  <label>身分：</label>
-  <label><input type="radio" name="role" value="student" required> 學生</label>
-  <label><input type="radio" name="role" value="teacher" required> 老師</label>
+  <div class="topbar">
+    <h1>課程報名</h1>
+    <div>
+      <a href="/">🏠 回首頁</a>
+    </div>
+  </div>
 
   <hr>
 
-  <label>姓名：</label>
-  <input type="text" name="name" required>
+  <p>
+    課程：{{ course.course_date }} {{ course.start_time }}-{{ course.end_time }}｜{{ course.course_name }}
+  </p>
+  <p>剩餘名額：{{ course.remaining }} / {{ course.capacity }}</p>
 
-  <label>電話：</label>
-  <input type="text" name="phone" required>
+  <form method="POST">
+    <!-- 第一步：選身分（直列） -->
+    <h3 class="step-title">第一步：選擇身分</h3>
 
-  <div id="student-fields" style="display:none; margin-top:10px;">
-    <label>學號：</label>
-    <input type="text" name="student_id" id="student_id">
-  </div>
+    <div class="form-group">
+      <label>身分：</label>
 
-  <div id="teacher-fields" style="display:none; margin-top:10px;">
-    <label>單位：</label>
-    <input type="text" name="unit" id="unit">
-  </div>
+      <label class="role-item">
+        <input type="radio" name="role" value="student" required>
+        學生
+      </label>
 
-  <button type="submit">送出報名</button>
-</form>
+      <label class="role-item">
+        <input type="radio" name="role" value="teacher" required>
+        老師
+      </label>
+    </div>
+
+    <!-- 第二步：填資料（依身分顯示；直列） -->
+    <div id="step2" style="display:none;">
+      <h3 class="step-title">第二步：填寫報名資料</h3>
+
+      <div id="student-title" class="hint-title" style="display:none;">學生要填</div>
+      <div id="teacher-title" class="hint-title" style="display:none;">老師要填</div>
+
+      <div class="form-group">
+        <label for="name">姓名</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+
+      <div class="form-group" id="student-only" style="display:none;">
+        <label for="student_id">學號</label>
+        <input type="text" id="student_id" name="student_id">
+      </div>
+
+      <div class="form-group" id="teacher-only" style="display:none;">
+        <label for="unit">服務單位</label>
+        <input type="text" id="unit" name="unit">
+      </div>
+
+      <div class="form-group">
+        <label for="phone">電話</label>
+        <input type="text" id="phone" name="phone" required>
+      </div>
+
+      <button type="submit">送出報名</button>
+    </div>
+  </form>
+</div>
 
 <script>
-  const studentFields = document.getElementById("student-fields");
-  const teacherFields = document.getElementById("teacher-fields");
-  const studentId = document.getElementById("student_id");
-  const unit = document.getElementById("unit");
+  const step2 = document.getElementById("step2");
+  const studentOnly = document.getElementById("student-only");
+  const teacherOnly = document.getElementById("teacher-only");
+  const studentTitle = document.getElementById("student-title");
+  const teacherTitle = document.getElementById("teacher-title");
 
-  function updateFields() {
+  const studentIdInput = document.getElementById("student_id");
+  const unitInput = document.getElementById("unit");
+
+  function updateFormByRole() {
     const role = document.querySelector('input[name="role"]:checked')?.value;
+
+    if (!role) {
+      step2.style.display = "none";
+      return;
+    }
+
+    // 顯示第二步
+    step2.style.display = "block";
+
     if (role === "student") {
-      studentFields.style.display = "block";
-      teacherFields.style.display = "none";
-      studentId.required = true;
-      unit.required = false;
-      unit.value = "";
-    } else if (role === "teacher") {
-      studentFields.style.display = "none";
-      teacherFields.style.display = "block";
-      studentId.required = false;
-      unit.required = true;
-      studentId.value = "";
+      studentTitle.style.display = "block";
+      teacherTitle.style.display = "none";
+
+      studentOnly.style.display = "block";
+      teacherOnly.style.display = "none";
+
+      studentIdInput.required = true;
+      unitInput.required = false;
+      unitInput.value = "";
+    }
+
+    if (role === "teacher") {
+      studentTitle.style.display = "none";
+      teacherTitle.style.display = "block";
+
+      studentOnly.style.display = "none";
+      teacherOnly.style.display = "block";
+
+      studentIdInput.required = false;
+      unitInput.required = true;
+      studentIdInput.value = "";
     }
   }
 
-  document.querySelectorAll('input[name="role"]').forEach(r => {
-    r.addEventListener("change", updateFields);
+  document.querySelectorAll('input[name="role"]').forEach(el => {
+    el.addEventListener("change", updateFormByRole);
   });
+
+  // 預防使用者返回頁面時狀態不對
+  updateFormByRole();
 </script>
-
-    <br>
-    <a href="/">回月曆</a>
-</div>
-
 </body>
 </html>
