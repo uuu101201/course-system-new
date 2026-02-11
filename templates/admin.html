@@ -32,15 +32,23 @@
             <button class="danger">刪除課程</button>
         </form>
 
-        <form method="POST" action="/admin/registration/delete/{{ r.id }}" style="display:inline;">
-            <button type="submit" onclick="return confirm('確定要刪除這筆報名嗎？');">刪除報名</button>
-        </form>
-
-
         <h4>報名名單</h4>
         <ul>
             {% for r in Registration.query.filter_by(course_id=c.id).all() %}
-                <li>{{ r.name }} | {{ r.email }} | {{ r.phone }}</li>
+                <li>
+                    {{ r.name }}
+                    {% if r.role == "student" %}
+                        | 學生{% if r.student_id %}（學號：{{ r.student_id }}）{% endif %}
+                    {% elif r.role == "teacher" %}
+                        | 老師{% if r.unit %}（單位：{{ r.unit }}）{% endif %}
+                    {% endif %}
+                    {% if r.email %} | {{ r.email }}{% endif %}
+                    | {{ r.phone }}
+
+                    <form method="POST" action="/admin/registration/delete/{{ r.id }}" style="display:inline;">
+                        <button type="submit" onclick="return confirm('確定要刪除這筆報名嗎？');">刪除報名</button>
+                    </form>
+                </li>
             {% else %}
                 <li>目前尚無人報名</li>
             {% endfor %}
