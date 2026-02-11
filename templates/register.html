@@ -13,41 +13,34 @@
     .step-title { margin-top: 16px; margin-bottom: 8px; }
     .hint-title { font-weight: bold; margin: 8px 0; }
 
-    /* ✅ 修正你紅色箭頭的版面：圓圈左、文字緊貼右邊，不被撐開 */
-    .role-list{
-      margin: 6px 0 0 0 !important;
-      padding: 0 !important;
+    /* ✅ 這一段專門修你紅色箭頭：強制靠左 + 圓圈緊貼文字 */
+    .role-section { text-align: left !important; }
+    .role-list {
       display: flex !important;
       flex-direction: column !important;
       align-items: flex-start !important;
-      gap: 10px !important;          /* 上下間距（舒服，不擠） */
+      gap: 10px !important;          /* 上下間距（回到舒服，不擠） */
+      margin: 6px 0 0 0 !important;
+      padding: 0 !important;
     }
-
-    /* 很多 style.css 會把 label 撐滿整行，導致內容被拉開，所以這裡強制改回來 */
-    label.role-item{
-      display: inline-flex !important;
+    .role-row {
+      display: flex !important;
       align-items: center !important;
       justify-content: flex-start !important;
+      gap: 10px !important;          /* 圓圈到文字距離（< 2公分） */
       width: auto !important;
-      max-width: none !important;
+    }
+    .role-row input[type="radio"] {
+      margin: 0 !important;
+      transform: none !important;
+    }
+    .role-row label.role-label {
+      display: inline !important;
+      width: auto !important;
       margin: 0 !important;
       padding: 0 !important;
-      gap: 10px !important;          /* 圓圈到文字距離（小於 2 公分） */
-      cursor: pointer;
-      user-select: none;
-    }
-
-    label.role-item input[type="radio"]{
-      margin: 0 !important;
-      flex: 0 0 auto !important;
-    }
-
-    /* 文字本身不要被推開 */
-    label.role-item .role-text{
-      margin: 0 !important;
-      padding: 0 !important;
-      display: inline-block !important;
-      white-space: nowrap !important;
+      text-align: left !important;
+      float: none !important;
     }
   </style>
 </head>
@@ -69,22 +62,24 @@
   <p>剩餘名額：{{ course.remaining }} / {{ course.capacity }}</p>
 
   <form method="POST">
-    <!-- 第一步：選身分 -->
+    <!-- 第一步：選身分（照你畫的：圓圈在左、文字緊貼） -->
     <h3 class="step-title">第一步：選擇身分</h3>
 
-    <div class="role-list">
-      <label class="role-item">
-        <input type="radio" name="role" value="student" required>
-        <span class="role-text">學生</span>
-      </label>
+    <div class="role-section">
+      <div class="role-list">
+        <div class="role-row">
+          <input id="role_student" type="radio" name="role" value="student" required>
+          <label class="role-label" for="role_student">學生</label>
+        </div>
 
-      <label class="role-item">
-        <input type="radio" name="role" value="teacher" required>
-        <span class="role-text">老師</span>
-      </label>
+        <div class="role-row">
+          <input id="role_teacher" type="radio" name="role" value="teacher" required>
+          <label class="role-label" for="role_teacher">老師</label>
+        </div>
+      </div>
     </div>
 
-    <!-- 第二步：填資料（依身分顯示；直列） -->
+    <!-- 第二步：填資料 -->
     <div id="step2" style="display:none;">
       <h3 class="step-title">第二步：填寫報名資料</h3>
 
