@@ -42,7 +42,6 @@
                     {% elif r.role == "teacher" %}
                         | 老師{% if r.unit %}（單位：{{ r.unit }}）{% endif %}
                     {% endif %}
-                    {% if r.email %} | {{ r.email }}{% endif %}
                     | {{ r.phone }}
 
                     <form method="POST" action="/admin/registration/delete/{{ r.id }}" style="display:inline;">
