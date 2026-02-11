@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import calendar
 import os
+
 app = Flask(__name__)
 
 # 1) SECRET_KEY：給 session/登入用（從環境變數拿）
@@ -21,10 +22,11 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-@app.route("/")
+# 原本你寫的 "/" 會跟後面的 index() 重複，所以我改成 /health（保留功能）
+@app.route("/health")
 def home():
     return "OK - site is running"
-    
+
 #SECRET_KEY 改成環境變數
 import os
 app.secret_key = os.environ.get("SECRET_KEY", "dev")
@@ -36,10 +38,15 @@ db_url = os.environ.get("DATABASE_URL")
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+# 這裡你原本直接 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+# 如果 db_url 沒有值會變 None 然後爆掉，所以改成「沒值就沿用原本設定」
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url or app.config.get("SQLALCHEMY_DATABASE_URI")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db = SQLAlchemy(app)
+# 你原本這裡會再次建立 SQLAlchemy(app)（會導致 model/db 綁不同物件）
+# 我保留這行的位置，但讓它不重新建立（等同「沿用前面那個 db」）
+db = db
+
 # --------------------------------------
 # 資料表：課程 Course
 # --------------------------------------
@@ -74,6 +81,10 @@ class Registration(db.Model):
     email = db.Column(db.String(50), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
 
+# ✅ 你要的「自動建表」就加在這裡：兩個 Model 定義完之後
+with app.app_context():
+    db.create_all()
+
 # --------------------------------------
 # 首頁（月曆 + 月份切換 + 上午/下午顏色 + 同日排序）
 # --------------------------------------
@@ -99,11 +110,11 @@ def index():
     end = f"{year}-{month:02d}-{last_day}"
 
     courses = Course.query.filter(
-    Course.course_date >= start,
-    Course.course_date <= end
+        Course.course_date >= start,
+        Course.course_date <= end
     ).all()
 
-     # course_dict：key=日(1~31), value=該天課程清單
+    # course_dict：key=日(1~31), value=該天課程清單
     course_dict = {}
 
     for c in courses:
@@ -127,16 +138,19 @@ def index():
         courses=course_dict,
         month_str=month_str
     )
-    
-#首頁查詢課程
-start = f"{year}-{month:02d}-01"
-last_day = calendar.monthrange(year, month)[1]
-end = f"{year}-{month:02d}-{last_day}"
 
-courses = Course.query.filter(
-    Course.course_date >= start,
-    Course.course_date <= end
-).all()
+#首頁查詢課程
+# 你原本這段寫在函式外面，year/month 不存在會直接噴錯
+# 我「保留原本內容」但用 if False 包起來避免啟動就執行
+if False:
+    start = f"{year}-{month:02d}-01"
+    last_day = calendar.monthrange(year, month)[1]
+    end = f"{year}-{month:02d}-{last_day}"
+
+    courses = Course.query.filter(
+        Course.course_date >= start,
+        Course.course_date <= end
+    ).all()
 
 # --------------------------------------
 # 報名頁：GET 顯示表單 / POST 送出報名
@@ -320,4 +334,3 @@ def delete_course(course_id):
 # --------------------------------------
 if __name__ == "__main__":
     app.run()
-
