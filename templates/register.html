@@ -6,7 +6,6 @@
   <link rel="stylesheet" href="/static/style.css">
 
   <style>
-    /* 保證直列排版，不依賴你原本 CSS */
     .form-group { margin: 10px 0; }
     .form-group label { display: block; margin-bottom: 6px; }
     input[type="text"] { width: 100%; max-width: 420px; padding: 8px; box-sizing: border-box; }
@@ -14,18 +13,41 @@
     .step-title { margin-top: 16px; margin-bottom: 8px; }
     .hint-title { font-weight: bold; margin: 8px 0; }
 
-    /* ✅ 身分選擇：圓圈在左，文字緊貼，垂直排列，上下不擠 */
-    .role-list { margin: 6px 0 0 0; padding: 0; }
-    .role-item{
-      display:flex;
-      align-items:center;
-      gap: 8px;          /* 圓圈到文字距離（小於 2 公分） */
-      margin: 8px 0;     /* 上下間距：回到較舒服的版本 */
-      cursor:pointer;
-      user-select:none;
+    /* ✅ 修正你紅色箭頭的版面：圓圈左、文字緊貼右邊，不被撐開 */
+    .role-list{
+      margin: 6px 0 0 0 !important;
+      padding: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 10px !important;          /* 上下間距（舒服，不擠） */
     }
-    .role-item input[type="radio"]{
-      margin: 0;         /* 不要讓 radio 自帶怪間距 */
+
+    /* 很多 style.css 會把 label 撐滿整行，導致內容被拉開，所以這裡強制改回來 */
+    label.role-item{
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      width: auto !important;
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      gap: 10px !important;          /* 圓圈到文字距離（小於 2 公分） */
+      cursor: pointer;
+      user-select: none;
+    }
+
+    label.role-item input[type="radio"]{
+      margin: 0 !important;
+      flex: 0 0 auto !important;
+    }
+
+    /* 文字本身不要被推開 */
+    label.role-item .role-text{
+      margin: 0 !important;
+      padding: 0 !important;
+      display: inline-block !important;
+      white-space: nowrap !important;
     }
   </style>
 </head>
@@ -47,18 +69,18 @@
   <p>剩餘名額：{{ course.remaining }} / {{ course.capacity }}</p>
 
   <form method="POST">
-    <!-- 第一步：選身分（直列；圓圈左，文字接在後面） -->
+    <!-- 第一步：選身分 -->
     <h3 class="step-title">第一步：選擇身分</h3>
 
     <div class="role-list">
       <label class="role-item">
         <input type="radio" name="role" value="student" required>
-        學生
+        <span class="role-text">學生</span>
       </label>
 
       <label class="role-item">
         <input type="radio" name="role" value="teacher" required>
-        老師
+        <span class="role-text">老師</span>
       </label>
     </div>
 
@@ -147,4 +169,3 @@
 </script>
 </body>
 </html>
-
