@@ -6,13 +6,23 @@
   <link rel="stylesheet" href="/static/style.css">
 
   <style>
-    /* 保證直列排版，不依賴你原本 CSS */
     .form-group { margin: 10px 0; }
-    .form-group label { display: block; margin-bottom: 6px; }
-    .role-item { display: block; margin: 6px 0; }
+    .step-title { margin-top: 16px; margin-bottom: 8px; }
+
+    /* 直列、貼近 */
+    .role-list { margin: 6px 0 0 0; padding: 0; }
+    .role-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;            /* 圓圈跟文字距離（小一點） */
+      margin: 4px 0;       /* 每一項上下間距（小一點） */
+      cursor: pointer;
+      user-select: none;
+    }
+    .role-item input[type="radio"] { margin: 0; }
+
     input[type="text"] { width: 100%; max-width: 420px; padding: 8px; box-sizing: border-box; }
     button { margin-top: 14px; padding: 8px 14px; }
-    .step-title { margin-top: 16px; margin-bottom: 8px; }
     .hint-title { font-weight: bold; margin: 8px 0; }
   </style>
 </head>
@@ -34,20 +44,18 @@
   <p>剩餘名額：{{ course.remaining }} / {{ course.capacity }}</p>
 
   <form method="POST">
-    <!-- 第一步：選身分（直列） -->
+    <!-- 第一步：選身分（直列、無「身分：」字樣、貼近） -->
     <h3 class="step-title">第一步：選擇身分</h3>
 
-    <div class="form-group">
-      <label>身分：</label>
-
+    <div class="role-list">
       <label class="role-item">
         <input type="radio" name="role" value="student" required>
-        學生
+        <span>學生</span>
       </label>
 
       <label class="role-item">
         <input type="radio" name="role" value="teacher" required>
-        老師
+        <span>老師</span>
       </label>
     </div>
 
@@ -101,7 +109,6 @@
       return;
     }
 
-    // 顯示第二步
     step2.style.display = "block";
 
     if (role === "student") {
@@ -133,7 +140,6 @@
     el.addEventListener("change", updateFormByRole);
   });
 
-  // 預防使用者返回頁面時狀態不對
   updateFormByRole();
 </script>
 </body>
