@@ -38,13 +38,15 @@
                         <div class="course-box {{ c.session_type }}">
                             <div><strong>{{ c.course_name }}</strong></div>
                             <div>🕒 {{ c.start_time }} - {{ c.end_time }}</div>
-                            <div>剩餘：{{ c.remaining }}</div>
 
-                            {% if c.remaining > 0 %}
-                                <a href="/register/{{ c.id }}">報名</a>
-                            {% else %}
-                                <span class="full">額滿 🔒</span>
-                            {% endif %}
+                            <div>
+                                剩餘：{{ c.remaining }}
+                                {% if c.remaining > 0 %}
+                                    <a href="/register/{{ c.id }}" style="margin-left: 8px;">報名</a>
+                                {% else %}
+                                    <span class="full" style="margin-left: 8px;">額滿 🔒</span>
+                                {% endif %}
+                            </div>
                         </div>
                     {% endfor %}
                 {% endif %}
