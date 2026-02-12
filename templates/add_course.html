@@ -50,16 +50,17 @@
             從哪天開始（會自動找到下一個指定星期）：<br>
             <input type="date" name="start_date"><br><br>
 
-            每週星期幾：<br>
-            <select name="weekday">
-                <option value="0">週一</option>
-                <option value="1">週二</option>
-                <option value="2">週三</option>
-                <option value="3">週四</option>
-                <option value="4">週五</option>
-                <option value="5">週六</option>
-                <option value="6">週日</option>
-            </select><br><br>
+            每週星期幾（可複選）：<br>
+            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:8px;">
+                <label><input type="checkbox" name="weekdays" value="0"> 週一</label>
+                <label><input type="checkbox" name="weekdays" value="1"> 週二</label>
+                <label><input type="checkbox" name="weekdays" value="2"> 週三</label>
+                <label><input type="checkbox" name="weekdays" value="3"> 週四</label>
+                <label><input type="checkbox" name="weekdays" value="4"> 週五</label>
+                <label><input type="checkbox" name="weekdays" value="5"> 週六</label>
+                <label><input type="checkbox" name="weekdays" value="6"> 週日</label>
+            </div>
+            <br>
 
             重複幾週：<br>
             <input type="number" name="weeks" min="1" value="4"><br><br>

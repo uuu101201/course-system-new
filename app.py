@@ -371,28 +371,37 @@ def add_course():
             ))
 
         else:
-            # 每週重複新增
+            # 每週重複新增（✅支援複選星期）
             # start_date：從哪一天開始找第一個指定星期
             start_date = datetime.strptime(request.form["start_date"], "%Y-%m-%d")
-            weeks = int(request.form["weeks"])       # 重複幾週
-            weekday = int(request.form["weekday"])   # 0=Mon ... 6=Sun
+            weeks = int(request.form["weeks"])  # 重複幾週
 
-            # 先把 current 移動到「下一個符合 weekday 的日期」
-            current = start_date
-            while current.weekday() != weekday:
-                current += timedelta(days=1)
+            # ✅ 改成複選：用 getlist 取得多個 weekdays
+            weekdays = request.form.getlist("weekdays")  # 會拿到字串 list
+            weekdays = [int(w) for w in weekdays]        # 轉成 int list
 
-            # 連續新增 N 週
-            for _ in range(weeks):
-                db.session.add(Course(
-                    course_date=current.strftime("%Y-%m-%d"),
-                    start_time=start_time,
-                    end_time=end_time,
-                    course_name=name,
-                    capacity=capacity,
-                    remaining=capacity
-                ))
-                current += timedelta(weeks=1)
+            if not weekdays:
+                return "請至少選擇一個星期（可複選）"
+
+            # 針對每個選到的星期，都從 start_date 找到第一個符合的日期，然後加 weeks 次
+            for weekday in weekdays:
+                current = start_date
+
+                # 先把 current 移動到「下一個符合 weekday 的日期」
+                while current.weekday() != weekday:
+                    current += timedelta(days=1)
+
+                # 連續新增 N 週
+                for _ in range(weeks):
+                    db.session.add(Course(
+                        course_date=current.strftime("%Y-%m-%d"),
+                        start_time=start_time,
+                        end_time=end_time,
+                        course_name=name,
+                        capacity=capacity,
+                        remaining=capacity
+                    ))
+                    current += timedelta(weeks=1)
 
         db.session.commit()
         return redirect("/admin")
