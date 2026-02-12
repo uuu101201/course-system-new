@@ -39,14 +39,16 @@
                             <div><strong>{{ c.course_name }}</strong></div>
                             <div>🕒 {{ c.start_time }} - {{ c.end_time }}</div>
 
-                            <div>
-                                剩餘：{{ c.remaining }}
-                                {% if c.remaining > 0 %}
-                                    <a href="/register/{{ c.id }}" style="margin-left: 8px;">報名</a>
-                                {% else %}
-                                    <span class="full" style="margin-left: 8px;">額滿 🔒</span>
-                                {% endif %}
-                            </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span>剩餘：{{ c.remaining }}</span>
+
+                            {% if c.remaining > 0 %}
+                                <a href="/register/{{ c.id }}">報名</a>
+                            {% else %}
+                                <span class="full">額滿 🔒</span>
+                            {% endif %}
+                        </div>
+
                         </div>
                     {% endfor %}
                 {% endif %}
