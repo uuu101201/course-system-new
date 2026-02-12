@@ -1,328 +1,176 @@
 <!DOCTYPE html>
-<!-- 宣告這是 HTML5 文件 -->
 <html>
-<!-- 整個 HTML 文件開始 -->
-
 <head>
-  <!-- head：放設定、CSS、標題，不會直接顯示在頁面上 -->
-
   <meta charset="utf-8">
-  <!-- UTF-8 編碼，避免中文亂碼 -->
-
   <title>課程報名</title>
-  <!-- 瀏覽器分頁標題 -->
-
   <link rel="stylesheet" href="/static/style.css">
-  <!-- 引入外部 CSS（你的共用樣式） -->
 
   <style>
-    /* 以下是本頁面專用的 CSS（會覆蓋部分 style.css） */
-
     .form-group { margin: 10px 0; }
-    /* 每個欄位區塊上下留 10px */
-
     .form-group label { display: block; margin-bottom: 6px; }
-    /* label 佔一整行、下方留 6px */
-
     input[type="text"] { width: 100%; max-width: 520px; padding: 8px; box-sizing: border-box; }
-    /* 文字輸入框：寬100%、最大520px、內距8px、box-sizing避免寬度溢出 */
-
-    button { margin-top: 14px; padding: 6px 6px; }
-    /* 按鈕：上方留 14px、內距 6x6 */
-
+    button { margin-top: 14px; padding: 8px 14px; }
     .step-title { margin-top: 16px; margin-bottom: 8px; }
-    /* 步驟標題：上 16px、下 8px */
-
     .hint-title { font-weight: bold; margin: 8px 0; }
-    /* 提示文字：粗體、上下 8px */
 
-    /* 第一部分：強制靠左 + 圓圈在文字前 */
+    /* ✅ 第一部份：強制靠左 + 圓圈在文字前 */
     #role-options{
       width: 100% !important;
-      /* 容器寬度滿版，避免被縮小或置中 */
-
       display: block !important;
-      /* 強制區塊元素 */
-
       text-align: left !important;
-      /* 裡面內容靠左 */
-
       margin: 0 !important;
-      /* 外距歸零 */
-
       padding: 0 !important;
-      /* 內距歸零 */
     }
 
     #role-options .role-list{
       display: flex !important;
-      /* 使用 flex 佈局 */
-
-      flex-direction: column !important;
-      /* 直列排列（上到下） */
-
-      align-items: flex-start !important;
-      /* 子元素靠左 */
-
-      gap: 12px !important;
-      /* 每個選項上下間距（舒服不擠） */
-
-      margin: 2px 0 0 0 !important;
-      /* 上方留 2px */
-
+      flex-direction: column !important;   /* 直列 */
+      align-items: flex-start !important;  /* 靠左 */
+      gap: 12px !important;               /* 上下間距（舒服不擠） */
+      margin: 6px 0 0 0 !important;
       padding: 0 !important;
-      /* 內距歸零 */
     }
 
     /* 用 label 包住 input+文字，並強制 input 在前、文字在後 */
     #role-options label.role-choice{
       display: flex !important;
-      /* label 內部用 flex，radio 和文字排一行 */
-
-      flex-direction: row !important;
-      /* 強制左→右排列 */
-
-      direction: ltr !important;
-      /* 防止被改成右→左（RTL） */
-
+      flex-direction: row !important;      /* 強制 左→右 */
+      direction: ltr !important;           /* 防止 RTL 反轉 */
       align-items: center !important;
-      /* 垂直置中 */
-
       justify-content: flex-start !important;
-      /* 從左開始排 */
-
       width: auto !important;
-      /* 不要撐滿整行，避免被拉開 */
-
       margin: 0 !important;
-      /* 外距 0 */
-
       padding: 0 !important;
-      /* 內距 0 */
-
-      gap: 2px !important;
-      /* 圓圈跟文字距離（你希望更近） */
-
+      gap: 12px !important;                /* 圓圈到文字距離（< 2公分） */
       cursor: pointer;
-      /* 滑鼠移上去變手指 */
-
       user-select: none;
-      /* 不讓文字被拖拉選取 */
-
       float: none !important;
-      /* 避免被 float 影響位置 */
-
       text-align: left !important;
-      /* 文字靠左 */
     }
 
     #role-options label.role-choice input[type="radio"]{
-      order: 0 !important;
-      /* 保證 radio 永遠第一個 */
-
+      order: 0 !important;                 /* ✅ 圓圈永遠第一個 */
       margin: 0 !important;
-      /* 取消 radio 預設外距 */
     }
 
     #role-options label.role-choice span.role-text{
-      order: 1 !important;
-      /* 保證文字永遠在 radio 後面 */
-
+      order: 1 !important;                 /* ✅ 文字永遠在圓圈後面 */
       margin: 0 !important;
-      /* 外距 0 */
-
       padding: 0 !important;
-      /* 內距 0 */
-
       white-space: nowrap !important;
-      /* 不換行 */
     }
   </style>
 </head>
 
 <body>
-  <!-- body：使用者看得到的畫面 -->
+<div class="container">
+  <div class="topbar">
+    <h1>課程報名</h1>
+    <div><a href="/">🏠 回首頁</a></div>
+  </div>
 
-  <div class="container">
-    <!-- 外層容器（通常用來控制整體寬度/置中） -->
+  <hr>
 
-    <div class="topbar">
-      <!-- 上方導覽列區塊 -->
+  <p>課程：{{ course.course_date }} {{ course.start_time }}-{{ course.end_time }}｜{{ course.course_name }}</p>
+  <p>剩餘名額：{{ course.remaining }} / {{ course.capacity }}</p>
 
-      <h1>課程報名</h1>
-      <!-- 大標題 -->
+  <form method="POST">
+    <h3 class="step-title">第一步：選擇身分</h3>
 
-      <div>
-        <a href="/">🏠 回首頁</a>
-        <!-- 回首頁連結 -->
+    <!-- ✅ 第一部份：靠左、圓圈在文字前 -->
+    <div id="role-options">
+      <div class="role-list">
+        <label class="role-choice">
+          <input type="radio" name="role" value="student" required>
+          <span class="role-text">學生</span>
+        </label>
+
+        <label class="role-choice">
+          <input type="radio" name="role" value="teacher" required>
+          <span class="role-text">老師</span>
+        </label>
       </div>
     </div>
 
-    <hr>
-    <!-- 分隔線 -->
+    <div id="step2" style="display:none;">
+      <h3 class="step-title">第二步：填寫報名資料</h3>
 
-    <p>
-      課程：{{ course.course_date }} {{ course.start_time }}-{{ course.end_time }}｜{{ course.course_name }}
-    </p>
-    <!-- 顯示課程資訊（Jinja2 變數） -->
+      <div id="student-title" class="hint-title" style="display:none;">學生要填</div>
+      <div id="teacher-title" class="hint-title" style="display:none;">老師要填</div>
 
-    <p>剩餘名額：{{ course.remaining }} / {{ course.capacity }}</p>
-    <!-- 顯示名額 -->
-
-    <form method="POST">
-      <!-- 表單，用 POST 送出 -->
-
-      <h3 class="step-title">第一步：選擇身分</h3>
-      <!-- 第一步標題 -->
-
-      <div id="role-options">
-      <!-- 身分選擇區 -->
-
-      <div class="role-list">
-      <!-- 直列容器 -->
-
-      <label class="role-choice">
-      <!-- 點文字也能選擇（label 包住 input+文字） -->
-
-      <input type="radio" name="role" value="student" required>
-      <!-- 選項：學生（必須選一個） -->
-
-      <span class="role-text">學生</span>
-      <!-- 顯示文字：學生 -->
-    </label>
-
-          <label class="role-choice">
-            <!-- 第二個選項：老師 -->
-
-            <input type="radio" name="role" value="teacher" required>
-            <!-- 選項：老師 -->
-
-            <span class="role-text">老師</span>
-            <!-- 顯示文字：老師 -->
-          </label>
-        </div>
+      <div class="form-group">
+        <label for="name">姓名</label>
+        <input type="text" id="name" name="name" required>
       </div>
 
-      <div id="step2" style="display:none;">
-        <!-- 第二步內容：預設隱藏，選身分後才顯示 -->
-
-        <h3 class="step-title">第二步：填寫報名資料</h3>
-        <!-- 第二步標題 -->
-
-        <div id="student-title" class="hint-title" style="display:none;">學生要填</div>
-        <!-- 顯示「學生要填」的提示（預設隱藏） -->
-
-        <div id="teacher-title" class="hint-title" style="display:none;">老師要填</div>
-        <!-- 顯示「老師要填」的提示（預設隱藏） -->
-
-        <div class="form-group">
-          <!-- 姓名欄位區 -->
-
-          <label for="name">姓名</label>
-          <!-- label 指向 id="name" -->
-
-          <input type="text" id="name" name="name" required>
-          <!-- 姓名輸入框（必填） -->
-        </div>
-
-        <div class="form-group" id="student-only" style="display:none;">
-          <!-- 學生專用區：學號（預設隱藏） -->
-
-          <label for="student_id">學號</label>
-          <!-- label 指向 id="student_id" -->
-
-          <input type="text" id="student_id" name="student_id">
-          <!-- 學號輸入框（JS 會在選學生時改成必填） -->
-        </div>
-
-        <div class="form-group" id="teacher-only" style="display:none;">
-          <!-- 老師專用區：服務單位（預設隱藏） -->
-
-          <label for="unit">服務單位</label>
-          <!-- label 指向 id="unit" -->
-
-          <input type="text" id="unit" name="unit">
-          <!-- 服務單位輸入框（JS 會在選老師時改成必填） -->
-        </div>
-
-        <div class="form-group">
-          <!-- 電話欄位區 -->
-
-          <label for="phone">電話</label>
-          <!-- label 指向 id="phone" -->
-
-          <input type="text" id="phone" name="phone" required>
-          <!-- 電話輸入框（必填） -->
-        </div>
-
-        <button type="submit">送出報名</button>
-        <!-- 送出按鈕 -->
+      <div class="form-group" id="student-only" style="display:none;">
+        <label for="student_id">學號</label>
+        <input type="text" id="student_id" name="student_id">
       </div>
-    </form>
-  </div>
 
-  <script>
-    // 取得第二步的整個區塊
-    const step2 = document.getElementById("step2");
+      <div class="form-group" id="teacher-only" style="display:none;">
+        <label for="unit">服務單位</label>
+        <input type="text" id="unit" name="unit">
+      </div>
 
-    // 取得學生/老師專用欄位容器
-    const studentOnly = document.getElementById("student-only");
-    const teacherOnly = document.getElementById("teacher-only");
+      <div class="form-group">
+        <label for="phone">電話</label>
+        <input type="text" id="phone" name="phone" required>
+      </div>
 
-    // 取得「學生要填 / 老師要填」提示文字
-    const studentTitle = document.getElementById("student-title");
-    const teacherTitle = document.getElementById("teacher-title");
+      <button type="submit">送出報名</button>
+    </div>
+  </form>
+</div>
 
-    // 取得學號/服務單位輸入框（等下要改 required）
-    const studentIdInput = document.getElementById("student_id");
-    const unitInput = document.getElementById("unit");
+<script>
+  const step2 = document.getElementById("step2");
+  const studentOnly = document.getElementById("student-only");
+  const teacherOnly = document.getElementById("teacher-only");
+  const studentTitle = document.getElementById("student-title");
+  const teacherTitle = document.getElementById("teacher-title");
 
-    // 依照選擇的身分更新畫面
-    function updateFormByRole() {
-      // 找出目前被選到的 role（student/teacher）
-      const role = document.querySelector('input[name="role"]:checked')?.value;
+  const studentIdInput = document.getElementById("student_id");
+  const unitInput = document.getElementById("unit");
 
-      // 如果還沒選身分，就隱藏第二步
-      if (!role) {
-        step2.style.display = "none";
-        return;
-      }
+  function updateFormByRole() {
+    const role = document.querySelector('input[name="role"]:checked')?.value;
 
-      // 有選身分，就顯示第二步
-      step2.style.display = "block";
-
-      // 如果是學生
-      if (role === "student") {
-        studentTitle.style.display = "block";  // 顯示學生提示
-        teacherTitle.style.display = "none";   // 隱藏老師提示
-
-        studentOnly.style.display = "block";   // 顯示學號欄位
-        teacherOnly.style.display = "none";    // 隱藏服務單位欄位
-
-        studentIdInput.required = true;        // 學號必填
-        unitInput.required = false;            // 服務單位不必填
-        unitInput.value = "";                  // 清空服務單位
-      } else {
-        // 如果是老師
-        studentTitle.style.display = "none";   // 隱藏學生提示
-        teacherTitle.style.display = "block";  // 顯示老師提示
-
-        studentOnly.style.display = "none";    // 隱藏學號欄位
-        teacherOnly.style.display = "block";   // 顯示服務單位欄位
-
-        studentIdInput.required = false;       // 學號不必填
-        unitInput.required = true;             // 服務單位必填
-        studentIdInput.value = "";             // 清空學號
-      }
+    if (!role) {
+      step2.style.display = "none";
+      return;
     }
 
-    // 監聽兩個 radio（學生/老師）的切換
-    document.querySelectorAll('input[name="role"]').forEach(el => {
-      el.addEventListener("change", updateFormByRole);
-    });
+    step2.style.display = "block";
 
-    // 頁面載入時先跑一次，確保狀態正確
-    updateFormByRole();
-  </script>
+    if (role === "student") {
+      studentTitle.style.display = "block";
+      teacherTitle.style.display = "none";
+
+      studentOnly.style.display = "block";
+      teacherOnly.style.display = "none";
+
+      studentIdInput.required = true;
+      unitInput.required = false;
+      unitInput.value = "";
+    } else {
+      studentTitle.style.display = "none";
+      teacherTitle.style.display = "block";
+
+      studentOnly.style.display = "none";
+      teacherOnly.style.display = "block";
+
+      studentIdInput.required = false;
+      unitInput.required = true;
+      studentIdInput.value = "";
+    }
+  }
+
+  document.querySelectorAll('input[name="role"]').forEach(el => {
+    el.addEventListener("change", updateFormByRole);
+  });
+
+  updateFormByRole();
+</script>
 </body>
 </html>
