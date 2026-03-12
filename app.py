@@ -96,8 +96,11 @@ class Registration(db.Model):
 
 # ✅ 你要的「自動建表」就加在這裡：兩個 Model 定義完之後
 with app.app_context():
-    db.create_all()
-
+    try:
+        db.create_all()
+    except Exception as e:
+        print("DB not ready:", e)
+        
     # ✅ 自動補欄位：舊資料庫若沒有 role/student_id/unit/email，就幫你加上（避免上線噴錯）
     try:
         insp = inspect(db.engine)
