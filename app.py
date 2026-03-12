@@ -176,8 +176,8 @@ def index():
         day = int(c.course_date.split("-")[2])
 
         # 上午 / 下午判斷（用開始時間的小時）
-        hour = int(c.start_time.split(":")[0])
-        c.session_type = "morning" if hour < 12 else "afternoon"
+        h, m = map(int, c.start_time.split(":"))
+        c.session_type = "morning" if (h < 14) else "afternoon"
 
         course_dict.setdefault(day, []).append(c)
 
