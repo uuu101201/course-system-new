@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>我的報名</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .card { padding:12px; border:1px solid #ddd; border-radius:8px; margin:10px 0; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .small { opacity:0.8; font-size:14px; }
+    button { padding:6px 12px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <h1>我的報名</h1>
+    <div>
+      <a href="/">🏠 回首頁</a> |
+      <a href="/my/logout">登出</a>
+    </div>
+  </div>
+
+  <hr>
+
+  <p class="small">
+    身分：{{ "學生" if role=="student" else "老師" }}　
+    姓名：{{ name }}　
+    電話：{{ phone }}
+    {% if role=="student" %}　學號：{{ student_id }}{% endif %}
+    {% if role=="teacher" %}　服務單位：{{ unit }}{% endif %}
+  </p>
+
+  {% if rows|length == 0 %}
+    <p>目前沒有查到你的報名。</p>
+  {% else %}
+    {% for reg, c in rows %}
+      <div class="card">
+        <div><strong>{{ c.course_date }} {{ c.start_time }}-{{ c.end_time }}</strong>｜{{ c.course_name }}</div>
+        <div class="row">
+          <div class="small">報名人：{{ reg.name }}｜{{ reg.phone }}</div>
+
+          <form method="POST" action="/my/cancel/{{ reg.id }}" style="margin-left:auto;">
+            <button type="submit" onclick="return confirm('確定要取消這筆報名嗎？');">取消此報名</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+</body>
+</html>

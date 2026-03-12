@@ -326,6 +326,131 @@ def admin():
 def admin_delete_registration(reg_id):
     if not session.get("admin"):
         return redirect("/login")
+# --------------------------------------
+# 使用者：登入 / 查看我的報名 / 取消我的報名
+# --------------------------------------
+@app.route("/my/login", methods=["GET", "POST"])
+def my_login():
+    if request.method == "POST":
+        role = request.form.get("role", "").strip()         # student / teacher
+        name = request.form.get("name", "").strip()
+        phone = request.form.get("phone", "").strip()
+        student_id = request.form.get("student_id", "").strip()
+        unit = request.form.get("unit", "").strip()
+
+        if role not in ["student", "teacher"]:
+            return "請先選擇 身分（學生/老師）"
+        if not name or not phone:
+            return "姓名、電話為必填"
+        if role == "student" and not student_id:
+            return "學生登入需填：姓名、學號、電話"
+        if role == "teacher" and not unit:
+            return "老師登入需填：姓名、服務單位、電話"
+
+        # ✅ 驗證：資料庫中必須至少有一筆報名符合，才算登入成功
+        q = Registration.query.filter_by(role=role, name=name, phone=phone)
+        if role == "student":
+            q = q.filter(Registration.student_id == student_id)
+        else:
+            q = q.filter(Registration.unit == unit)
+
+        exists = q.first()
+        if not exists:
+            return "找不到符合的報名資料，請確認輸入資訊是否正確"
+
+        # ✅ 存 session（登入狀態）
+        session["my_role"] = role
+        session["my_name"] = name
+        session["my_phone"] = phone
+        session["my_student_id"] = student_id if role == "student" else ""
+        session["my_unit"] = unit if role == "teacher" else ""
+
+        return redirect("/my")
+
+    return render_template("my_login.html")
+
+
+@app.route("/my/logout")
+def my_logout():
+    session.pop("my_role", None)
+    session.pop("my_name", None)
+    session.pop("my_phone", None)
+    session.pop("my_student_id", None)
+    session.pop("my_unit", None)
+    return redirect("/")
+
+
+@app.route("/my")
+def my_registrations():
+    role = session.get("my_role")
+    name = session.get("my_name")
+    phone = session.get("my_phone")
+    student_id = session.get("my_student_id", "")
+    unit = session.get("my_unit", "")
+
+    if not role or not name or not phone:
+        return redirect("/my/login")
+
+    q = (
+        db.session.query(Registration, Course)
+        .join(Course, Registration.course_id == Course.id)
+        .filter(
+            Registration.role == role,
+            Registration.name == name,
+            Registration.phone == phone,
+        )
+    )
+
+    if role == "student":
+        q = q.filter(Registration.student_id == student_id)
+    else:
+        q = q.filter(Registration.unit == unit)
+
+    rows = q.order_by(Course.course_date, Course.start_time).all()
+
+    return render_template(
+        "my_registrations.html",
+        role=role,
+        name=name,
+        phone=phone,
+        student_id=student_id,
+        unit=unit,
+        rows=rows
+    )
+
+
+@app.route("/my/cancel/<int:reg_id>", methods=["POST"])
+def my_cancel(reg_id):
+    role = session.get("my_role")
+    name = session.get("my_name")
+    phone = session.get("my_phone")
+    student_id = session.get("my_student_id", "")
+    unit = session.get("my_unit", "")
+
+    if not role or not name or not phone:
+        return redirect("/my/login")
+
+    reg = Registration.query.get(reg_id)
+    if not reg:
+        return "報名資料不存在"
+
+    # ✅ 驗證：只能取消自己的
+    if reg.role != role or reg.name != name or reg.phone != phone:
+        return "你沒有權限取消這筆報名"
+    if role == "student" and reg.student_id != student_id:
+        return "你沒有權限取消這筆報名"
+    if role == "teacher" and reg.unit != unit:
+        return "你沒有權限取消這筆報名"
+
+    course = Course.query.get(reg.course_id)
+    if course:
+        # 名額加回去（不要超過 capacity）
+        if course.remaining < course.capacity:
+            course.remaining += 1
+
+    db.session.delete(reg)
+    db.session.commit()
+    return redirect("/my")
 
     reg = Registration.query.get(reg_id)
     if not reg:
