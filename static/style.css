@@ -122,3 +122,7 @@ hr {
     font-size: 12px;
     color: #666;
 }
+/* 月曆內的「報名」連結強制粗體 */
+.course-box a {
+  font-weight: 700 !important;
+}
