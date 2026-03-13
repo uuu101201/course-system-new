@@ -150,3 +150,48 @@ hr {
   margin: 0 8px;
   color: #666;
 }
+/* topbar 左右排版：左標題、右月份框+連結 */
+.calendar-topbar{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.title-block{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.right-block{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* 月份選擇框放大 */
+.month-form .month-input{
+  font-size: 18px;
+  padding: 10px 12px;
+  height: 44px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+/* 右側連結（月份框下面） */
+.right-actions{
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.right-actions a{
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.right-actions .sep{
+  margin: 0 8px;
+  color: #666;
+}

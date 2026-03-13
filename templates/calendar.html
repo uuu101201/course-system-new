@@ -8,18 +8,29 @@
 <body>
 
 <div class="container">
-    <div class="topbar">
-        <h2 style="margin:0; font-size:32px; color:black;">iFitHub運動健康辦公室</h2>
-        <h1>{{ year }} / {{ month }} 課程月曆</h1>
+    <!-- ✅ topbar：左標題 / 右月份選擇 + 右側連結（你要移到右邊空白處） -->
+    <div class="topbar calendar-topbar">
+        <div class="title-block">
+            <h2 style="margin:0; font-size:32px; color:black;">iFitHub運動健康辦公室</h2>
+            <h1 style="margin:0;">{{ year }} / {{ month }} 課程月曆</h1>
+        </div>
 
-<form method="get" id="monthForm" class="month-form">
-  <input class="month-input"
-         type="month"
-         name="month"
-         value="{{ month_str }}"
-         onchange="document.getElementById('monthForm').submit();">
-</form>
-</form>
+        <div class="right-block">
+            <form method="get" id="monthForm" class="month-form">
+                <input class="month-input"
+                       type="month"
+                       name="month"
+                       value="{{ month_str }}"
+                       onchange="document.getElementById('monthForm').submit();">
+            </form>
+
+            <!-- ✅ 已移到右側空白處（月份框下面） -->
+            <div class="calendar-actions right-actions">
+                <a href="/my/login">查看/取消我的報名</a>
+                <span class="sep">|</span>
+                <a href="/login">管理者登入</a>
+            </div>
+        </div>
     </div>
 
     <p>
@@ -28,11 +39,6 @@
     </p>
 
     <table>
-        <div class="calendar-actions">
-             <a href="/my/login">查看/取消我的報名</a>
-            <span class="sep">|</span>
-            <a href="/login">管理者登入</a>
-</div>
         <tr>
             <th>一</th><th>二</th><th>三</th><th>四</th><th>五</th>
         </tr>
@@ -49,16 +55,15 @@
                             <div><strong>{{ c.course_name }}</strong></div>
                             <div>🕒 {{ c.start_time }} - {{ c.end_time }}</div>
 
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <span>剩餘：{{ c.remaining }}</span>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span>剩餘：{{ c.remaining }}</span>
 
-                            {% if c.remaining > 0 %}
-                                <a href="/register/{{ c.id }}" style="margin-left: 8px; font-weight: 700 !important;">報名</a>
-                            {% else %}
-                                <span class="full">額滿 🔒</span>
-                            {% endif %}
-                        </div>
-
+                                {% if c.remaining > 0 %}
+                                    <a href="/register/{{ c.id }}" style="font-weight: 700 !important;">報名</a>
+                                {% else %}
+                                    <span class="full">額滿 🔒</span>
+                                {% endif %}
+                            </div>
                         </div>
                     {% endfor %}
                 {% endif %}
@@ -67,6 +72,8 @@
         </tr>
         {% endfor %}
     </table>
+
+</div>
 
 </body>
 </html>
