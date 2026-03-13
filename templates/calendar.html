@@ -12,9 +12,13 @@
         <h2 style="margin:0; font-size:32px; color:black;">iFitHub運動健康辦公室</h2>
         <h1>{{ year }} / {{ month }} 課程月曆</h1>
 
-<form method="get" id="monthForm">
-    <input type="month" name="month" value="{{ month_str }}"
-            onchange="document.getElementById('monthForm').submit();">
+<form method="get" id="monthForm" class="month-form">
+  <input class="month-input"
+         type="month"
+         name="month"
+         value="{{ month_str }}"
+         onchange="document.getElementById('monthForm').submit();">
+</form>
 </form>
     </div>
 
@@ -24,6 +28,11 @@
     </p>
 
     <table>
+        <div class="calendar-actions">
+             <a href="/my/login">查看/取消我的報名</a>
+            <span class="sep">|</span>
+            <a href="/login">管理者登入</a>
+</div>
         <tr>
             <th>一</th><th>二</th><th>三</th><th>四</th><th>五</th>
         </tr>
@@ -58,10 +67,6 @@
         </tr>
         {% endfor %}
     </table>
-
-    <br>
-    <a href="/my/login">查看/取消我的報名</a> | <a href="/login">管理者登入</a>
-</div>
 
 </body>
 </html>

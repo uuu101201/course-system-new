@@ -126,3 +126,27 @@ hr {
 .course-box a {
   font-weight: 700 !important;
 }
+/* 月份選擇框放大（手機也會變大） */
+.month-form .month-input {
+  font-size: 18px;
+  padding: 10px 12px;
+  height: 44px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+/* 月曆表格下方的連結（拉上來貼近月曆） */
+.calendar-actions {
+  margin-top: 12px;
+  font-size: 16px;
+}
+
+.calendar-actions a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.calendar-actions .sep {
+  margin: 0 8px;
+  color: #666;
+}
