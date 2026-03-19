@@ -237,6 +237,9 @@ hr {
   margin: 10px 0 0 0;
 }
 
+.course-intro-wrap{
+  margin: 10px 0 0 0;
+}
 .course-intro-btn{
   display: inline-block;
   background: #000;
@@ -247,7 +250,6 @@ hr {
   text-decoration: none;
   line-height: 1.2;
 }
-
 .course-intro-btn:hover{
   opacity: 0.85;
 }
