@@ -253,3 +253,78 @@ hr {
 .course-intro-btn:hover{
   opacity: 0.85;
 }
+/* ====== Calendar header layout (照你圖的排版) ====== */
+.calendar-topbar{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.left-block{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.site-title{
+  margin: 0;
+  font-size: 32px;
+  color: #000;
+}
+
+.month-title{
+  margin: 0;
+}
+
+/* 黑底白字粗體：框貼字，不要太大 */
+.intro-btn{
+  display: inline-block;
+  width: fit-content;
+  padding: 10px 14px;
+  background: #000;
+  color: #fff;
+  font-weight: 800;
+  border-radius: 10px;
+  text-decoration: none;
+  line-height: 1;
+}
+
+/* 右邊：月份框 + 連結 + badge 都靠右 */
+.right-block{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.month-form .month-input{
+  font-size: 18px;
+  padding: 12px 14px;
+  height: 52px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+}
+
+.right-actions{
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.right-actions .sep{
+  margin: 0 10px;
+  color: #666;
+}
+
+/* badge 也移到右邊並排 */
+.badge-row{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+/* 報名變粗體 */
+.register-link{
+  font-weight: 800;
+}

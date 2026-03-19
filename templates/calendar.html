@@ -14,7 +14,7 @@
             <h2 style="margin:0; font-size:32px; color:black;">iFitHub運動健康辦公室</h2>
             <h1 style="margin:0;">{{ year }} / {{ month }} 課程月曆</h1>
         </div>
-
+    <!-- ✅ 黑底白字粗體，大小貼字，不留大空白 -->
         <div class="course-intro-wrap">
             <a class="course-intro-btn"
                href="https://sites.google.com/d/1sc8ePBvUTW17TZhiv1sOOQ4Z0s_UgM6S/p/1gr7D3_vbL-MOC9ik_oFMF6FpOM15oBrN/edit"
@@ -24,14 +24,15 @@
             </a>
         </div>
 
-        <div class="right-block">
-            <form method="get" id="monthForm" class="month-form">
-                <input class="month-input"
-                       type="month"
-                       name="month"
-                       value="{{ month_str }}"
-                       onchange="document.getElementById('monthForm').submit();">
-            </form>
+    <div class="right-block">
+        <!-- 月份選擇：選完自動送出 -->
+        <form method="get" id="monthForm" class="month-form">
+            <input class="month-input"
+                    type="month"
+                    name="month"
+                    value="{{ month_str }}"
+                    onchange="document.getElementById('monthForm').submit();">
+        </form>
 
             <!-- ✅ 已移到右側空白處（月份框下面） -->
             <div class="calendar-actions right-actions">
@@ -39,14 +40,13 @@
                 <span class="sep">|</span>
                 <a href="/login">管理者登入</a>
             </div>
+            <div class="badge-row">
+                <span class="badge">中午課程：藍色</span>
+                <span class="badge">下午課程：橘色</span>
+            </div>
         </div>
     </div>
-
-    <p>
-        <span class="badge">中午課程：藍色</span>
-        <span class="badge">下午課程：橘色</span>
-    </p>
-
+    <!-- ✅ 月曆表格 -->
     <table>
         <tr>
             <th>一</th><th>二</th><th>三</th><th>四</th><th>五</th>
