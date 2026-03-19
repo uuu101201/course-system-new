@@ -195,3 +195,41 @@ hr {
   margin: 0 8px;
   color: #666;
 }
+.course-intro-wrap{
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.course-intro-link{
+  display: inline-block;     /* ✅ 框貼合文字寬度 */
+  padding: 4px 8px;          /* ✅ 很小的內距，不會留太多白 */
+  border: 2px solid #000;    /* ✅ 黑色外框 */
+  border-radius: 6px;
+  color: #000;
+  font-weight: 800;
+  text-decoration: none;
+  background: #fff;
+}
+
+.course-intro-link:hover{
+  background: #f2f2f2;
+}
+.course-intro-wrap{
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.course-intro-link{
+  display: inline-block;     /* ✅ 框貼合文字寬度 */
+  padding: 4px 8px;          /* ✅ 很小的內距，不會留太多白 */
+  border: 2px solid #000;    /* ✅ 黑色外框 */
+  border-radius: 6px;
+  color: #000;
+  font-weight: 800;
+  text-decoration: none;
+  background: #fff;
+}
+
+.course-intro-link:hover{
+  background: #f2f2f2;
+}
