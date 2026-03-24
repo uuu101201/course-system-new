@@ -44,7 +44,10 @@
                     {% endif %}
                     | {{ r.phone }}
 
-                    <form method="POST" action="/admin/registration/delete/{{ r.id }}" style="display:inline;">
+                    <form method="POST" 
+                          action="/admin/registration/delete/{{ r.id }}" 
+                          style="display:inline;"
+                          onsubmit="return confirm('確定要刪除這筆報名嗎？');">
                         <button type="submit" onclick="return confirm('確定要刪除這筆報名嗎？');">刪除報名</button>
                     </form>
                 </li>

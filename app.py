@@ -321,18 +321,32 @@ def admin():
     courses = Course.query.order_by(Course.course_date, Course.start_time).all()
     return render_template("admin.html", courses=courses, Registration=Registration)
 
-# ✅ 需求 3：管理者可刪除報名資料（並把名額加回去）
+# ✅ 管理者可刪除報名資料（並把名額加回去）
 @app.route("/admin/registration/delete/<int:reg_id>", methods=["POST"])
 def admin_delete_registration(reg_id):
     if not session.get("admin"):
         return redirect("/login")
+
+    reg = Registration.query.get(reg_id)
+    if not reg:
+        return "報名資料不存在"
+
+    course = Course.query.get(reg.course_id)
+    if course and course.remaining < course.capacity:
+        course.remaining += 1
+
+    db.session.delete(reg)
+    db.session.commit()
+    return redirect("/admin")
+
+
 # --------------------------------------
 # 使用者：登入 / 查看我的報名 / 取消我的報名
 # --------------------------------------
 @app.route("/my/login", methods=["GET", "POST"])
 def my_login():
     if request.method == "POST":
-        role = request.form.get("role", "").strip()         # student / teacher
+        role = request.form.get("role", "").strip()  # student / teacher
         name = request.form.get("name", "").strip()
         phone = request.form.get("phone", "").strip()
         student_id = request.form.get("student_id", "").strip()
