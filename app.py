@@ -310,6 +310,14 @@ def logout():
     session.pop("admin", None)
     return redirect("/")
 
+#判斷課程是否結束
+def course_is_finished(course):
+    """判斷課程是否已結束：用 course_date + end_time 跟現在時間比"""
+    try:
+        end_dt = datetime.strptime(f"{course.course_date} {course.end_time}", "%Y-%m-%d %H:%M")
+        return end_dt < datetime.now()
+    except Exception:
+        return False
 # --------------------------------------
 # 管理後台：查看所有課程 + 報名名單
 # --------------------------------------
@@ -318,8 +326,10 @@ def admin():
     if not session.get("admin"):
         return redirect("/login")
 
-    courses = Course.query.order_by(Course.course_date, Course.start_time).all()
-    return render_template("admin.html", courses=courses, Registration=Registration)
+    all_courses = Course.query.order_by(Course.course_date, Course.start_time).all()
+
+    upcoming_courses = [c for c in all_courses if not course_is_finished(c)]
+    return render_template("admin.html", courses=upcoming_courses, Registration=Registration)
 
 # ✅ 管理者可刪除報名資料（並把名額加回去）
 @app.route("/admin/registration/delete/<int:reg_id>", methods=["POST"])
@@ -339,6 +349,15 @@ def admin_delete_registration(reg_id):
     db.session.commit()
     return redirect("/admin")
 
+@app.route("/admin/past")
+def admin_past():
+    if not session.get("admin"):
+        return redirect("/login")
+
+    all_courses = Course.query.order_by(Course.course_date.desc(), Course.start_time.desc()).all()
+    past_courses = [c for c in all_courses if course_is_finished(c)]
+
+    return render_template("admin_past.html", courses=past_courses, Registration=Registration)
 
 # --------------------------------------
 # 使用者：登入 / 查看我的報名 / 取消我的報名

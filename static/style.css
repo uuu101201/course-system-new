@@ -328,3 +328,74 @@ hr {
 .register-link{
   font-weight: 800;
 }
+/* 管理後台：搜尋工具列 */
+.admin-tools{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 14px 0;
+}
+
+.admin-search{
+  width: min(520px, 100%);
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.admin-search-clear{
+  padding: 8px 12px;
+}
+
+/* 每堂課可收合 */
+.course-panel{
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin: 10px 0;
+}
+
+.course-summary{
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  font-weight: 700;
+  list-style: none;
+}
+
+.course-summary::-webkit-details-marker{
+  display: none;
+}
+
+.course-sum-title{
+  flex: 1;
+}
+
+.course-sum-cap{
+  white-space: nowrap;
+  font-weight: 600;
+  color: #555;
+}
+
+.course-body{
+  margin-top: 10px;
+}
+
+.reg-list{
+  padding-left: 18px;
+}
+
+.reg-item{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.inline-form{
+  display: inline;
+}

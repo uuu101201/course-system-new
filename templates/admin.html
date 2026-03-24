@@ -13,52 +13,97 @@
         <div>
             <a href="/">🏠 回首頁</a> |
             <a href="/admin/add">➕ 新增課程</a> |
+            <a href="/admin/past">📁 已結束課程</a> |
             <a href="/logout">登出</a>
         </div>
     </div>
 
     <hr>
 
-    {% for c in courses %}
-        <h3>{{ c.course_date }} {{ c.start_time }}-{{ c.end_time }}｜{{ c.course_name }}</h3>
-        <p>剩餘名額：{{ c.remaining }} / {{ c.capacity }}</p>
+{% for c in courses %}
+  <details class="course-panel" open>
+    <summary class="course-summary">
+      <span class="course-sum-title">
+        {{ c.course_date }} {{ c.start_time }}-{{ c.end_time }}｜{{ c.course_name }}
+      </span>
+      <span class="course-sum-cap">
+        剩餘 {{ c.remaining }} / {{ c.capacity }}
+      </span>
+    </summary>
 
-        <p>
-            <a href="/admin/edit/{{ c.id }}">✏️ 修改課程</a>
-        </p>
+    <div class="course-body">
+      <p>
+        <a href="/admin/edit/{{ c.id }}">✏️ 修改課程</a>
+      </p>
 
-        <form method="post" action="/admin/delete/{{ c.id }}"
-              onsubmit="return confirm('確定要刪除這堂課嗎？所有報名資料也會一起刪除！');">
-            <button class="danger">刪除課程</button>
-        </form>
+      <form method="post" action="/admin/delete/{{ c.id }}"
+            onsubmit="return confirm('確定要刪除這堂課嗎？所有報名資料也會一起刪除！');">
+        <button class="danger">刪除課程</button>
+      </form>
 
-        <h4>報名名單</h4>
-        <ul>
-            {% for r in Registration.query.filter_by(course_id=c.id).all() %}
-                <li>
-                    {{ r.name }}
-                    {% if r.role == "student" %}
-                        | 學生{% if r.student_id %}（學號：{{ r.student_id }}）{% endif %}
-                    {% elif r.role == "teacher" %}
-                        | 老師{% if r.unit %}（單位：{{ r.unit }}）{% endif %}
-                    {% endif %}
-                    | {{ r.phone }}
+      <h4>報名名單</h4>
+      <ul class="reg-list">
+        {% for r in Registration.query.filter_by(course_id=c.id).all() %}
+          <li class="reg-item">
+            <span class="reg-text">
+              {{ r.name }}
+              {% if r.role == "student" %}
+                | 學生{% if r.student_id %}（學號：{{ r.student_id }}）{% endif %}
+              {% elif r.role == "teacher" %}
+                | 老師{% if r.unit %}（單位：{{ r.unit }}）{% endif %}
+              {% endif %}
+              | {{ r.phone }}
+            </span>
 
-                    <form method="POST" 
-                          action="/admin/registration/delete/{{ r.id }}" 
-                          style="display:inline;"
-                          onsubmit="return confirm('確定要刪除這筆報名嗎？');">
-                        <button type="submit" onclick="return confirm('確定要刪除這筆報名嗎？');">刪除報名</button>
-                    </form>
-                </li>
-            {% else %}
-                <li>目前尚無人報名</li>
-            {% endfor %}
-        </ul>
+            <form method="POST" action="/admin/registration/delete/{{ r.id }}" class="inline-form">
+              <button type="submit" onclick="return confirm('確定要刪除這筆報名嗎？');">刪除報名</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="reg-empty">目前尚無人報名</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </details>
 
-        <hr>
-    {% endfor %}
+  <hr>
+{% endfor %}
 </div>
+<script>
+  const searchInput = document.getElementById("regSearch");
 
+  function clearRegSearch() {
+    searchInput.value = "";
+    applyRegSearch();
+    searchInput.focus();
+  }
+
+  function applyRegSearch() {
+    const q = (searchInput.value || "").trim().toLowerCase();
+
+    document.querySelectorAll(".course-panel").forEach(panel => {
+      let anyVisible = false;
+
+      // 先處理該課程底下每個報名人
+      panel.querySelectorAll(".reg-item").forEach(li => {
+        const text = li.innerText.toLowerCase();
+        const show = (q === "") || text.includes(q);
+        li.style.display = show ? "" : "none";
+        if (show) anyVisible = true;
+      });
+
+      // 「目前尚無人報名」那行：搜尋時不顯示（避免干擾）
+      const empty = panel.querySelector(".reg-empty");
+      if (empty) empty.style.display = (q === "") ? "" : "none";
+
+      // 如果搜尋有字，而且這堂課底下都沒命中 => 整堂課隱藏
+      panel.style.display = (q === "" || anyVisible) ? "" : "none";
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", applyRegSearch);
+  }
+</script>
 </body>
 </html>
