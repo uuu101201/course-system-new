@@ -218,11 +218,34 @@ def register(course_id):
     if not course or course.remaining <= 0:
         return "課程不存在或已額滿"
 
+    # ✅ 新增：日期/時間已過就不能報名（用課程「開始時間」當作截止）
+    try:
+        course_start_dt = datetime.strptime(
+            f"{course.course_date} {course.start_time}",
+            "%Y-%m-%d %H:%M"
+        )
+        if datetime.now() >= course_start_dt:
+            return "此課程已開始或已結束，無法報名"
+    except Exception:
+        # 若資料格式怪掉，保守起見先不讓報名，避免漏報
+        return "課程時間格式錯誤，請聯絡管理者"
+
     if request.method == "POST":
         # 再檢查一次避免多人同時送出
         course = Course.query.get(course_id)
         if course.remaining <= 0:
             return "此課程已額滿"
+
+    # ✅ 再檢查一次：避免使用者停留頁面很久才送出
+        try:
+            course_start_dt = datetime.strptime(
+                f"{course.course_date} {course.start_time}",
+                "%Y-%m-%d %H:%M"
+            )
+            if datetime.now() >= course_start_dt:
+                return "此課程已開始或已結束，無法報名"
+        except Exception:
+            return "課程時間格式錯誤，請聯絡管理者"
 
         # ✅ 新增：先選學生/老師
         role = request.form.get("role", "").strip()  # student / teacher
