@@ -8,13 +8,13 @@
 <body>
 
 <div class="container">
-    <!-- ✅ topbar：左標題 / 右月份選擇 + 右側連結（你要移到右邊空白處） -->
     <div class="topbar calendar-topbar">
         <div class="title-block">
             <h2 style="margin:0; font-size:32px; color:black;">iFitHub運動健康辦公室</h2>
             <h1 style="margin:0;">{{ year }} / {{ month }} 課程月曆</h1>
         </div>
-    <!-- ✅ 黑底白字粗體，大小貼字，不留大空白 -->
+
+        <!-- 黑底白字粗體：點我看課程介紹 -->
         <div class="course-intro-wrap">
             <a class="course-intro-btn"
                href="https://sites.google.com/d/1sc8ePBvUTW17TZhiv1sOOQ4Z0s_UgM6S/p/1gr7D3_vbL-MOC9ik_oFMF6FpOM15oBrN/edit"
@@ -24,29 +24,28 @@
             </a>
         </div>
 
-    <div class="right-block">
-        <!-- 月份選擇：選完自動送出 -->
-        <form method="get" id="monthForm" class="month-form">
-            <input class="month-input"
-                    type="month"
-                    name="month"
-                    value="{{ month_str }}"
-                    onchange="document.getElementById('monthForm').submit();">
-        </form>
+        <div class="right-block">
+            <form method="get" id="monthForm" class="month-form">
+                <input class="month-input"
+                        type="month"
+                        name="month"
+                        value="{{ month_str }}"
+                        onchange="document.getElementById('monthForm').submit();">
+            </form>
 
-            <!-- ✅ 已移到右側空白處（月份框下面） -->
             <div class="calendar-actions right-actions">
                 <a href="/my/login">查看/取消我的報名</a>
                 <span class="sep">|</span>
                 <a href="/login">管理者登入</a>
             </div>
+
+            <!-- ✅ 取消中午/下午固定顏色提示，改成管理者自訂 -->
             <div class="badge-row">
-                <span class="badge">中午課程：藍色</span>
-                <span class="badge">下午課程：橘色</span>
+                <span class="badge">課程顏色：由管理者設定</span>
             </div>
         </div>
     </div>
-    <!-- ✅ 月曆表格 -->
+
     <table>
         <tr>
             <th>一</th><th>二</th><th>三</th><th>四</th><th>五</th>
@@ -60,7 +59,8 @@
                     <strong>{{ day }}</strong>
 
                     {% for c in courses.get(day, []) %}
-                        <div class="course-box {{ c.session_type }}">
+                        <!-- ✅ 用 course_color，不再用 session_type -->
+                        <div class="course-box" style="border-left: 10px solid {{ c.course_color or '#4A90E2' }};">
                             <div><strong>{{ c.course_name }}</strong></div>
                             <div>🕒 {{ c.start_time }} - {{ c.end_time }}</div>
 
@@ -68,7 +68,7 @@
                                 <span>剩餘：{{ c.remaining }}</span>
 
                                 {% if c.remaining > 0 %}
-                                    <a href="/register/{{ c.id }}" style="font-weight: 700 !important;">報名</a>
+                                    <a href="/register/{{ c.id }}" style="font-weight:700;">報名</a>
                                 {% else %}
                                     <span class="full">額滿 🔒</span>
                                 {% endif %}

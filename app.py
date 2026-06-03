@@ -24,7 +24,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "sqlite:///local.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
-
 # 原本你寫的 "/" 會跟後面的 index() 重複，所以我改成 /health（保留功能）
 @app.route("/health")
 def home():
@@ -70,6 +69,8 @@ class Course(db.Model):
     capacity = db.Column(db.Integer, nullable=False)
     remaining = db.Column(db.Integer, nullable=False)
 
+    # 課程顏色（後台自訂），預設給一個顏色（可改）
+    course_color = db.Column(db.String(20), nullable=False, default="#4A90E2")
 # --------------------------------------
 # 資料表：報名 Registration
 # --------------------------------------
@@ -138,6 +139,25 @@ with app.app_context():
 
     except Exception:
         # 如果資料庫不允許或語法差異，先不讓整個網站掛掉
+        pass
+
+    # ✅ 自動補欄位：Course 表如果沒有 course_color，就補上（避免舊資料庫沒欄位）
+    try:
+        insp = inspect(db.engine)
+        if "course" in insp.get_table_names():
+            cols_course = [c["name"] for c in insp.get_columns("course")]
+
+            if "course_color" not in cols_course:
+                db.session.execute(text("ALTER TABLE course ADD COLUMN course_color VARCHAR(20)"))
+                db.session.commit()
+
+            # 把舊資料 course_color 是 NULL 的補成預設色
+            try:
+                db.session.execute(text("UPDATE course SET course_color='#4A90E2' WHERE course_color IS NULL"))
+                db.session.commit()
+            except Exception:
+                pass
+    except Exception:
         pass
 
 # --------------------------------------
@@ -535,6 +555,7 @@ def add_course():
         start_time = request.form["start_time"]
         end_time = request.form["end_time"]
         capacity = int(request.form["capacity"])
+        course_color = request.form.get("course_color", "#4A90E2")
 
         # 簡單檢查：開始時間必須小於結束時間
         if start_time >= end_time:
@@ -551,7 +572,8 @@ def add_course():
                 end_time=end_time,
                 course_name=name,
                 capacity=capacity,
-                remaining=capacity
+                remaining=capacity,
+                course_color=course_color
             ))
 
         else:
@@ -583,7 +605,8 @@ def add_course():
                         end_time=end_time,
                         course_name=name,
                         capacity=capacity,
-                        remaining=capacity
+                        remaining=capacity,
+                        course_color=course_color
                     ))
                     current += timedelta(weeks=1)
 
@@ -611,6 +634,7 @@ def edit_course(course_id):
         course.end_time = request.form["end_time"]
         course.course_name = request.form["name"]
         course.capacity = int(request.form["capacity"])
+        course.course_color = request.form.get("course_color", course.course_color or "#4A90E2")
 
         if course.start_time >= course.end_time:
             return "開始時間必須早於結束時間"
