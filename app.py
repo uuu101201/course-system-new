@@ -188,7 +188,8 @@ def index():
         Course.course_date >= start,
         Course.course_date <= end
     ).all()
-
+    now_local = datetime.utcnow() + timedelta(hours=8)  # 台灣時間（Render 常用 UTC）
+    
     # course_dict：key=日(1~31), value=該天課程清單
     course_dict = {}
     now_local = datetime.now()
