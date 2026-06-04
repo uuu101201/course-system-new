@@ -191,15 +191,26 @@ def index():
 
     # course_dict：key=日(1~31), value=該天課程清單
     course_dict = {}
+    now_local = datetime.now()
 
     for c in courses:
+    # ✅ 如果這堂課「結束時間」已經過了，就不要顯示在月曆上
+        try:
+            end_dt = datetime.strptime(f"{c.course_date} {c.end_time}", "%Y-%m-%d %H:%M")
+            if end_dt <= now_local:
+                continue
+        except Exception:
+            # 如果資料格式怪怪的（例如時間不是 HH:MM），就先不要因為它讓整頁掛掉
+            pass
+
         day = int(c.course_date.split("-")[2])
 
-        # 上午 / 下午判斷（用開始時間的小時）
+        # ✅ 你原本的上午/下午（14:00 分界）還留著也可以
         h, m = map(int, c.start_time.split(":"))
         c.session_type = "morning" if (h < 14) else "afternoon"
 
         course_dict.setdefault(day, []).append(c)
+    
 
     # 同一天依開始時間排序（字串 HH:MM 直接排序即可）
     for d in course_dict:
