@@ -264,7 +264,7 @@ def register(course_id):
 
     if request.method == "POST":
         # 再檢查一次避免多人同時送出
-        course = Course.query.get(course_id)
+        course_color = request.form.get("course_color", "").strip() or "#4A90E2"
         if course.remaining <= 0:
             return "此課程已額滿"
 
